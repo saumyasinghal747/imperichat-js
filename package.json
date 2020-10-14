@@ -1,7 +1,7 @@
 {
   "name": "imperichat-js",
   "version": "1.0.0",
-  "description": "Javascript API for programming Imperichat bots.",
+  "description": "Javascript SDK for programming Imperichat bots.",
   "private": false,
   "main": "index.js",
   "scripts": {
