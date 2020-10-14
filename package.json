@@ -1,0 +1,27 @@
+{
+  "name": "imperichat-js",
+  "version": "1.0.0",
+  "description": "Javascript API for programming Imperichat bots.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saumyasinghal747/imperichat-js.git"
+  },
+  "keywords": [
+    "bot",
+    "imperichat",
+    "js"
+  ],
+  "author": "Saumya Singhal",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/saumyasinghal747/imperichat-js/issues"
+  },
+  "homepage": "https://github.com/saumyasinghal747/imperichat-js#readme",
+  "dependencies": {
+    "@types/node": "^14.11.8"
+  }
+}
