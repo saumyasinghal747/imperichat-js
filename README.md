@@ -9,7 +9,7 @@ npm i imperichat-js
 
 ## Getting Started
 
-You're going to need Node.js to use this library. It also works in the browser using Webpack or Browserify, however.
+You're going to need Node.js running in a trusted environment to use this library.
 
 First, require the module like so:
 
