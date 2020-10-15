@@ -22,7 +22,17 @@ Then, initialize the client:
 ```javascript 1.8
 const client = new ImperichatClient()
 
+client.login("myBotId","supersecretpassword")
+
 client.onMessage('1234sectionid',function (message) { 
-    console.log(message.author.displayName, " sent ", message.content)
+    if (message.content==="Hello"){
+        client.sendMessage('1234sectionid',"World!")
+    }
  })
+```
+To change bots within code:
+```javascript 1.8
+client.logout();
+
+client.login("myNewBotId", "supersecretotherpassword")
 ```
