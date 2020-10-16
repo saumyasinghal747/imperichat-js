@@ -1,7 +1,7 @@
 import {Message} from "./Message";
 import fetch  from 'node-fetch';
 const apiBase = 'https://mangoice.herokuapp.com/imperichat'
-
+const EventSource = require('eventsource');
 
 class ImperichatAuthError extends Error {
     constructor(message) {
@@ -27,7 +27,10 @@ export class ImperichatClient {
     async login(botId:string, password:string){
         const response = await fetch(`${apiBase}/bot/login`,{
             method:'POST',
-            body:JSON.stringify({botId, password})
+            body:JSON.stringify({botId, password}),
+            headers:{
+                "Content-Type":"application/json"
+            }
         })
         const content = await response.json()
         if (content.error){
@@ -56,7 +59,10 @@ export class ImperichatClient {
             body:JSON.stringify({
                 token: this.token,
                 message, sectionId
-            })
+            }),
+            headers:{
+                "Content-Type":"application/json"
+            }
         })
 
         const content = await response.json();
