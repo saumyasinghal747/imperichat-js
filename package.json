@@ -1,5 +1,5 @@
 {
-  "name": "imperichat-js",
+  "name": "@saumyasinghal747/imperichat-js",
   "version": "1.0.0",
   "description": "Javascript SDK for programming Imperichat bots.",
   "main": "index.js",
