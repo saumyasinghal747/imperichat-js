@@ -2,6 +2,7 @@ import {Message} from "./Message";
 import fetch  from 'node-fetch';
 const apiBase = 'https://mangoice.herokuapp.com/imperichat'
 
+
 class ImperichatAuthError extends Error {
     constructor(message) {
         super(message); // (1)
