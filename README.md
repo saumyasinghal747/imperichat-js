@@ -19,14 +19,16 @@ const ImperichatClient = require('imperichat-js')
 
 Then, initialize the client:
 
-```javascript 1.8
+```javascript
 const client = new ImperichatClient()
 
 client.login("myBotId","supersecretpassword")
 
 client.onMessage('1234sectionid',function (message) { 
     if (message.content==="Hello"){
-        client.sendMessage('1234sectionid',"World!")
+        client.sendMessage('1234sectionid',"World!").then(function (messageId) {
+            console.log(`Message sent with ID ${messageId}`)
+      })
     }
  })
 ```
