@@ -14,7 +14,7 @@ You're going to need Node.js running in a trusted environment to use this librar
 First, require the module like so:
 
 ```javascript 1.8
-const ImperichatClient = require('imperichat-js')
+const {ImperichatClient} = require('imperichat-js')
 ```
 
 Then, initialize the client:
