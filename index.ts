@@ -1,7 +1,10 @@
-import {Message} from "./Message";
-import fetch  from 'node-fetch';
+//import {Message} from "./Message"; // this is not used?
+import fetch from 'node-fetch';
+
 const apiBase = 'https://mangoice.herokuapp.com/imperichat'
 const EventSource = require('eventsource');
+const EventEmitter = require('events');
+
 
 class ImperichatAuthError extends Error {
     constructor(message) {
@@ -10,73 +13,64 @@ class ImperichatAuthError extends Error {
     }
 }
 
-export class ImperichatClient {
+export default class ImperichatClient extends EventEmitter {
     private token: string;
-    constructor() {
-    }
 
-    onMessage(sectionId:string, callback: (message:Message)=>void ){
+    subscribe(sectionId: string) {
         const source = new EventSource(`${apiBase}/l/messages/${sectionId}`);
         source.addEventListener("message", function (message) {
             const data = JSON.parse(message.data)
-            callback(data)
+            this.emit('message', data)
         })
-
     }
 
-    async login(botId:string, password:string){
-        const response = await fetch(`${apiBase}/bot/login`,{
-            method:'POST',
-            body:JSON.stringify({botId, password}),
-            headers:{
-                "Content-Type":"application/json"
+    async login(botId: string, password: string) {
+        const response = await fetch(`${apiBase}/bot/login`, {
+            method: 'POST',
+            body: JSON.stringify({botId, password}),
+            headers: {
+                "Content-Type": "application/json"
             }
         })
         const content = await response.json()
-        if (content.error){
+        if (content.error) {
             // throw the error
-            throw new ImperichatAuthError("Either the password is incorrect, or the bot has not been registered.");
-        }
-        else {
+            this.emit('error', new ImperichatAuthError("Either the password is incorrect, or the bot has not been registered."));
+        } else {
             // the response is fine
-            this.token= content.token // yay we are now logged in
+            this.token = content.token // yay we are now logged in
+            this.emit('ready');
         }
-
     }
 
-    async logout():Promise<void>{
+    async logout(): Promise<void> {
         this.token = null
     }
 
-    async sendMessage(sectionId:string, message:string):Promise<string> {
+    async sendMessage(sectionId: string, message: string): Promise<string> {
 
-        if (!this.token){
-             throw new ImperichatAuthError("The client is not logged in. Call ImperichatClient.login first.")
+        if (!this.token) {
+            this.emit('error', new ImperichatAuthError("The client is not logged in. Call ImperichatClient.login first."));
         }
 
-        const response = await fetch(`${apiBase}/bot/message`,{
-            method:'POST',
-            body:JSON.stringify({
+        const response = await fetch(`${apiBase}/bot/message`, {
+            method: 'POST',
+            body: JSON.stringify({
                 token: this.token,
                 message, sectionId
             }),
-            headers:{
-                "Content-Type":"application/json"
+            headers: {
+                "Content-Type": "application/json"
             }
         })
 
         const content = await response.json();
-        if (content.error){
-            throw new ImperichatAuthError(content.error.message)
-        }
-
-        else {
+        if (content.error) {
+            this.emit('error', new ImperichatAuthError(content.error.message));
+        } else {
             return content.messageId
         }
-
-
     }
-
 }
 
 
