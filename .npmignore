@@ -1,3 +1,4 @@
 node-modules
 .idea
 .github
+*.ts

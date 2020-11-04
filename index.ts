@@ -2,7 +2,7 @@ import {Message} from "./Message";
 import fetch  from 'node-fetch';
 const apiBase = 'https://mangoice.herokuapp.com/imperichat'
 const EventSource = require('eventsource');
-
+const EventEmitter = require('events');
 class ImperichatAuthError extends Error {
     constructor(message) {
         super(message); // (1)
@@ -10,18 +10,61 @@ class ImperichatAuthError extends Error {
     }
 }
 
-export class ImperichatClient {
+class ImperichatReferenceError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ImperichatReferenceError"
+    }
+}
+
+export class ImperichatClient extends EventEmitter{
     private token: string;
-    constructor() {
+
+    subscribe(sectionId:string){
+        const source = new EventSource(`${apiBase}/l/messages/${sectionId}`);
+        source.addEventListener("message",function (message) {
+            const data = JSON.parse(message.data);
+            this.emit('message',data)
+        })
+        return source.close
     }
 
-    onMessage(sectionId:string, callback: (message:Message)=>void ){
+    async fetchLast30(sectionId:string): Promise<Array<Message>|{error:{code:string,message:string}}>{
+        const response = await (await fetch(`${apiBase}/messages/chunk/${sectionId}`,{
+            method:'GET'
+        })).json()
+        if (response.error){
+            this.emit('error', response.error.message)
+        }
+        return response
+    }
+
+    onMessage(sectionId:string, callback: (message:Message)=>()=>void ){
         const source = new EventSource(`${apiBase}/l/messages/${sectionId}`);
         source.addEventListener("message", function (message) {
             const data = JSON.parse(message.data)
             callback(data)
         })
+        return source.close
 
+    }
+
+    async editMessage(sectionId:string, messageId:string, newMessage:string, token:string): Promise<void>{
+        await fetch(`${apiBase}/messages/${sectionId}/${messageId}`,{
+            method:'PATCH',
+            body:JSON.stringify({
+                message:newMessage,
+                token // the token of the user, we fetch this
+            })
+        })
+    }
+    async deleteMessage(sectionId:string, messageId:string, token:string): Promise<void>{
+        await fetch(`${apiBase}/messages/${sectionId}/${messageId}`,{
+            method:'DELETE',
+            body:JSON.stringify({
+                token // the token of the user, we fetch this
+            })
+        })
     }
 
     async login(botId:string, password:string){
@@ -39,7 +82,8 @@ export class ImperichatClient {
         }
         else {
             // the response is fine
-            this.token= content.token // yay we are now logged in
+            this.token= content.token; // yay we are now logged in
+            this.emit('ready');
         }
 
     }
@@ -67,7 +111,7 @@ export class ImperichatClient {
 
         const content = await response.json();
         if (content.error){
-            throw new ImperichatAuthError(content.error.message)
+            this.emit('error',new ImperichatAuthError(content.error.message))
         }
 
         else {
