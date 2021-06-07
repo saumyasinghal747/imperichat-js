@@ -39,11 +39,11 @@ export class ImperichatClient extends EventEmitter{
         return response
     }
 
-    onMessage(sectionId:string, callback: (message:Message)=>()=>void ){
+    onMessage(sectionId:string, callback: (message:Message|{}, eventType:"added"|"modified"|"removed")=>()=>void ){
         const source = new EventSource(`${apiBase}/l/messages/${sectionId}`);
         source.addEventListener("message", function (message) {
             const data = JSON.parse(message.data)
-            callback(data)
+            callback(data.message,data.event)
         })
         return source.close
 
